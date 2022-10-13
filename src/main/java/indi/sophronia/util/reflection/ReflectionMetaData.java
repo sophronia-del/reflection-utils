@@ -95,12 +95,12 @@ public class ReflectionMetaData {
             GenericTypeMapping[] mappings = new GenericTypeMapping[genericTypeMappings.length];
             for (int i = 0; i < genericTypeMappings.length; i++) {
                 // static type parameters depends on nothing
-                if (genericTypeMappings[i].staticType != null) {
+                if (genericTypeMappings[i].instantiated()) {
                     mappings[i] = new GenericTypeMapping(genericTypeMappings[i]);
                     continue;
                 }
                 // otherwise, replace them by mapping of super class
-                int indexInSuperClass = genericTypeMappings[i].drivedIndex;
+                int indexInSuperClass = genericTypeMappings[i].index();
                 mappings[i] = new GenericTypeMapping(superMapping[indexInSuperClass]);
             }
             typeParameterMap.put(entry.getKey(), mappings);

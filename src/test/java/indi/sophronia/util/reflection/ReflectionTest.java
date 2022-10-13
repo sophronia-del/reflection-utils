@@ -4,6 +4,7 @@ import indi.sophronia.util.reflection.types.Base;
 import indi.sophronia.util.reflection.types.Drived;
 import indi.sophronia.util.reflection.types.Drived2;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class ReflectionTest {
@@ -35,10 +36,13 @@ public class ReflectionTest {
         new Drived<Short, Character, Byte, Float>() {
             {
                 ReflectionMetaData data = ReflectionMetaData.register(getClass());
-                System.out.println(data.actualTypeParameter(Map.class, 0).staticType);
-                System.out.println(data.actualTypeParameter(Base.class, 1).staticType);
-                System.out.println(data.actualTypeParameter(Base.class, 2).staticType);
+                System.out.println(data.actualTypeParameter(Map.class, 0).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 1).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 2).instanceType());
             }
         };
+
+        System.out.println(Arrays.toString(ReflectionUtils.
+                findBaseMethods(Drived2.class.getDeclaredMethod("put", Double.class, Integer.class))));
     }
 }

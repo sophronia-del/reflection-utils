@@ -9,12 +9,12 @@ public class GenericTypeMapping {
      * If a type parameter of <strong>base class</strong> is not static defined,
      * index value of the type parameter means its index in <strong>drived class</strong>
      */
-    public final int drivedIndex;
+    private final int drivedIndex;
 
     /**
      * Static defined type parameter
      */
-    public final Class<?> staticType;
+    private final Class<?> staticType;
 
     public GenericTypeMapping(GenericTypeMapping genericTypeMapping) {
         this.drivedIndex = genericTypeMapping.drivedIndex;
@@ -27,8 +27,20 @@ public class GenericTypeMapping {
     }
 
     public GenericTypeMapping(Class<?> staticType) {
-        this.drivedIndex = 0;
+        this.drivedIndex = -1;
         this.staticType = staticType;
+    }
+
+    public boolean instantiated() {
+        return staticType != null;
+    }
+
+    public Class<?> instanceType() {
+        return staticType;
+    }
+
+    public int index() {
+        return drivedIndex;
     }
 
     @Override

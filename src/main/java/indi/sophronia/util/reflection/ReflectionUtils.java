@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 
 public class ReflectionUtils {
@@ -52,7 +54,7 @@ public class ReflectionUtils {
 
                 // check if implemented type parameter matches
                 if (drivedGenType instanceof Class &&
-                        !drivedGenType.equals(inDrived.staticType)) {
+                        !drivedGenType.equals(inDrived.instanceType())) {
                     return false;
                 }
 
@@ -60,7 +62,7 @@ public class ReflectionUtils {
                 if (drivedGenType instanceof TypeVariable) {
 
                     int indexInDrived2 = drivedData.indexOfTypeVariable((TypeVariable<?>) drivedGenType);
-                    if (inDrived.drivedIndex != indexInDrived2) {
+                    if (inDrived.index() != indexInDrived2) {
                         return false;
                     }
                 }
@@ -71,6 +73,9 @@ public class ReflectionUtils {
         return true;
     }
 
+    /**
+     * @return First method meeting the requirement in input class or its super classes and interfaces
+     */
     public static Method findRequiredMethod(Class<?> clazz, Predicate<Method> requirement) {
         Method m = findDeclaredMethod(clazz, requirement);
         if (m != null) {
@@ -101,6 +106,9 @@ public class ReflectionUtils {
         return null;
     }
 
+    /**
+     * @return First field meeting the requirement in input class or its super classes and interfaces
+     */
     public static Field findRequiredField(Class<?> clazz, Predicate<Field> requirement) {
         Field f = findDeclaredField(clazz, requirement);
         if (f != null) {
@@ -129,5 +137,29 @@ public class ReflectionUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * @return All methods overridden by the input method in all super classes
+     *         and interfaces of its declaring class
+     */
+    public static Method[] findBaseMethods(Method drivedMethod) {
+        List<Method> methods = new ArrayList<>();
+        ReflectionMetaData data = ReflectionMetaData.register(drivedMethod.getDeclaringClass());
+        for (Class<?> superClass : data.getSuperClasses()) {
+            for (Method declaredMethod : superClass.getDeclaredMethods()) {
+                if (overrides(declaredMethod, drivedMethod)) {
+                    methods.add(declaredMethod);
+                }
+            }
+        }
+        for (Class<?> anInterface : data.getInterfaces()) {
+            for (Method declaredMethod : anInterface.getDeclaredMethods()) {
+                if (overrides(declaredMethod, drivedMethod)) {
+                    methods.add(declaredMethod);
+                }
+            }
+        }
+        return methods.toArray(new Method[0]);
     }
 }
