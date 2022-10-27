@@ -84,7 +84,7 @@ public class ReflectionMetaData {
                 }
             }
             if (!asSuperParameter) {
-                superMapping[i] = new GenericTypeMapping((Class<?>) actualTypeArguments[i]);
+                superMapping[i] = new GenericTypeMapping(actualTypeArguments[i], i);
             }
         }
         typeParameterMap.put(superData.type, superMapping);
@@ -115,19 +115,14 @@ public class ReflectionMetaData {
         for (Map.Entry<Class<?>, GenericTypeMapping[]> entry : superData.typeParameterMap.entrySet()) {
             GenericTypeMapping[] decayedMappings = Arrays.copyOf(entry.getValue(), entry.getValue().length);
             for (int i = 0; i < decayedMappings.length; i++) {
-                decayedMappings[i] = new GenericTypeMapping((Class<?>)
-                        entry.getKey().getTypeParameters()[i].getBounds()[0]);
+                decayedMappings[i] =
+                        new GenericTypeMapping(entry.getKey().getTypeParameters()[i].getBounds()[0], i);
             }
             this.typeParameterMap.put(entry.getKey(), decayedMappings);
         }
     }
 
     public static ReflectionMetaData register(Class<?> clazz) {
-        return register(clazz, ReflectionMetaData::new);
-    }
-
-    public static ReflectionMetaData register(Class<?> clazz,
-                                              Function<Class<?>, ReflectionMetaData> supplier) {
         ReflectionMetaData data = cache.get(clazz);
         if (data != null) {
             return data;
@@ -137,10 +132,17 @@ public class ReflectionMetaData {
             if (data != null) {
                 return data;
             }
-            data = supplier.apply(clazz);
+            data = new ReflectionMetaData(clazz);
             cache.put(clazz, data);
             return data;
         }
+    }
+
+    public static <T extends ReflectionMetaData> T reload(Class<?> clazz,
+                                                          Function<Class<?>, T> supplier) {
+        T metaData = supplier.apply(clazz);
+        cache.put(clazz, metaData);
+        return metaData;
     }
 
     public Class<?>[] getSuperClasses() {
@@ -162,9 +164,6 @@ public class ReflectionMetaData {
 
     public GenericTypeMapping actualTypeParameter(Class<?> parameterizedBase, int baseIndex) {
         GenericTypeMapping[] mappings = typeParameterMap.get(parameterizedBase);
-        if (mappings == null) {
-            throw new IllegalArgumentException(parameterizedBase.getName() + " is not a generic type");
-        }
-        return mappings[baseIndex];
+        return mappings != null ? mappings[baseIndex] : new GenericTypeMapping(-1);
     }
 }

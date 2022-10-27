@@ -52,6 +52,10 @@ public class ReflectionUtils {
                 int indexInBase = baseData.indexOfTypeVariable((TypeVariable<?>) baseGenType);
                 GenericTypeMapping inDrived = drivedData.actualTypeParameter(base.getDeclaringClass(), indexInBase);
 
+                if (!inDrived.generic()) {
+                    return false;
+                }
+
                 // check if implemented type parameter matches
                 if (drivedGenType instanceof Class &&
                         !drivedGenType.equals(inDrived.instanceType())) {

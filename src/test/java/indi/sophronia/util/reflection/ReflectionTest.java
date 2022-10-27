@@ -5,6 +5,7 @@ import indi.sophronia.util.reflection.types.Drived;
 import indi.sophronia.util.reflection.types.Drived2;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class ReflectionTest {
@@ -33,16 +34,42 @@ public class ReflectionTest {
         System.out.println(ReflectionUtils.overrides(Map.class.getDeclaredMethod("put", Object.class, Object.class),
                 Drived2.class.getDeclaredMethod("put", Double.class, Integer.class)));
 
-        new Drived<Short, Character, Byte, Float>() {
+        new Drived2<List<List<Object[]>>, Character, Byte, Float>() {
             {
                 ReflectionMetaData data = ReflectionMetaData.register(getClass());
                 System.out.println(data.actualTypeParameter(Map.class, 0).instanceType());
                 System.out.println(data.actualTypeParameter(Base.class, 1).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 2).instanceType());
                 System.out.println(data.actualTypeParameter(Base.class, 2).instanceType());
             }
         };
 
         System.out.println(Arrays.toString(ReflectionUtils.
                 findBaseMethods(Drived2.class.getDeclaredMethod("put", Double.class, Integer.class))));
+
+        parameterizedFunc();
+    }
+
+    private static <T> void parameterizedFunc() {
+        new Drived2<T[], Character, Byte, Float>() {
+            {
+                ReflectionMetaData data = ReflectionMetaData.register(getClass());
+                System.out.println(data.actualTypeParameter(Map.class, 0).instanceType());
+                System.out.println(data.actualTypeParameter(Map.class, 1).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 0).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 1).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 2).instanceType());
+            }
+        };
+        new Drived2<T, Character, Byte, Float>() {
+            {
+                ReflectionMetaData data = ReflectionMetaData.register(getClass());
+                System.out.println(data.actualTypeParameter(Map.class, 0).instanceType());
+                System.out.println(data.actualTypeParameter(Map.class, 1).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 0).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 1).instanceType());
+                System.out.println(data.actualTypeParameter(Base.class, 2).instanceType());
+            }
+        };
     }
 }
